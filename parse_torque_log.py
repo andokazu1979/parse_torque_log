@@ -7,8 +7,20 @@ import datetime
 import pandas as pd
 from pandas import Series, DataFrame
 
+########################################
+# User settings
+########################################
+
 DIRPATH_LOG = '/var/spool/torque/server_priv/accounting'
 PERIOD_STA = '20170401'
+
+########################################
+# Main
+########################################
+
+#---------------------------------------
+# Parse log files and construct dataframe
+#---------------------------------------
 
 d = {'user' : [], 'group' : [], 'queue' : [], 'nnodes' : [], 'mem' : [], 'vmem' : [], 'walltime' : [], 'node_hour' : []}
 for fpath in glob.glob(os.path.join(DIRPATH_LOG, '????????')):
@@ -48,6 +60,10 @@ for fpath in glob.glob(os.path.join(DIRPATH_LOG, '????????')):
                     d['walltime'].append(walltime)
             d['node_hour'].append(int(nnodes * (float(walltime) / 3600)))
     df_exit = DataFrame(d)
+
+#---------------------------------------
+# Fix up and show dataframe
+#---------------------------------------
 
 s_node_hour = df_exit.groupby([df_exit['group'], df_exit['user']]).sum()['node_hour']
 s_node_njobs = df_exit.groupby([df_exit['group'], df_exit['user']]).size()
